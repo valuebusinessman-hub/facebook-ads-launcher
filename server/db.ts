@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, adDrafts, InsertAdDraft, AdDraft, llmSuggestions, InsertLLMSuggestion, facebookLaunches, InsertFacebookLaunch, settings, InsertSetting, notionSyncLog, InsertNotionSyncLog } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,102 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Ad Draft queries
+export async function getAdDraftsByStatus(status: string): Promise<AdDraft[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(adDrafts).where(eq(adDrafts.status, status as any));
+}
+
+export async function getAllAdDrafts(): Promise<AdDraft[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(adDrafts).orderBy(desc(adDrafts.createdAt));
+}
+
+export async function getAdDraftById(id: number): Promise<AdDraft | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(adDrafts).where(eq(adDrafts.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAdDraftByNotionPageId(notionPageId: string): Promise<AdDraft | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(adDrafts).where(eq(adDrafts.notionPageId, notionPageId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createAdDraft(draft: InsertAdDraft): Promise<AdDraft> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(adDrafts).values(draft);
+  const result = await db.select().from(adDrafts).where(eq(adDrafts.notionPageId, draft.notionPageId)).limit(1);
+  return result[0];
+}
+
+export async function updateAdDraftStatus(id: number, status: string, facebookAdId?: string, errorMessage?: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(adDrafts).set({
+    status: status as any,
+    facebookAdId: facebookAdId || null,
+    errorMessage: errorMessage || null,
+    updatedAt: new Date(),
+  }).where(eq(adDrafts.id, id));
+}
+
+// LLM Suggestion queries
+export async function saveLLMSuggestions(suggestion: InsertLLMSuggestion): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(llmSuggestions).values(suggestion);
+}
+
+export async function getLLMSuggestionByAdDraftId(adDraftId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(llmSuggestions).where(eq(llmSuggestions.adDraftId, adDraftId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// Facebook Launch queries
+export async function recordFacebookLaunch(launch: InsertFacebookLaunch): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(facebookLaunches).values(launch);
+}
+
+export async function getFacebookLaunchByAdDraftId(adDraftId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(facebookLaunches).where(eq(facebookLaunches.adDraftId, adDraftId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// Settings queries
+export async function getSetting(key: string): Promise<string | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(settings).where(eq(settings.key, key)).limit(1);
+  return result.length > 0 ? result[0].value : undefined;
+}
+
+export async function setSetting(key: string, value: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  const existing = await getSetting(key);
+  if (existing) {
+    await db.update(settings).set({ value, updatedAt: new Date() }).where(eq(settings.key, key));
+  } else {
+    await db.insert(settings).values({ key, value });
+  }
+}
+
+// Notion Sync Log queries
+export async function logNotionSync(log: InsertNotionSyncLog): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(notionSyncLog).values(log);
+}
