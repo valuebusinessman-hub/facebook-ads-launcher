@@ -118,14 +118,14 @@ export default function AdDraftCard({
         <button
           onClick={handleApprove}
           disabled={isLoading}
-          className="editorial-button-primary flex-1"
+          className="flex-1 px-4 py-2 bg-accent text-accent-foreground rounded-sm font-medium uppercase tracking-wider text-sm transition-all hover:opacity-90 disabled:opacity-50"
         >
           {isLoading ? "Launching..." : "Approve & Launch"}
         </button>
         <button
           onClick={onReject}
           disabled={isLoading}
-          className="editorial-button-secondary flex-1"
+          className="flex-1 px-4 py-2 bg-transparent border border-border text-foreground rounded-sm font-medium uppercase tracking-wider text-sm transition-all hover:bg-secondary disabled:opacity-50"
         >
           Reject
         </button>

@@ -108,7 +108,8 @@ export default function Dashboard() {
         <Button
           onClick={() => syncDrafts.mutate()}
           disabled={syncDrafts.isPending}
-          className="editorial-button-secondary"
+          variant="outline"
+          size="sm"
         >
           {syncDrafts.isPending ? "Syncing..." : "Sync from Notion"}
         </Button>
@@ -123,19 +124,18 @@ export default function Dashboard() {
         <div className="text-center py-12">
           <p className="editorial-subheading text-lg mb-4">No drafts found</p>
           <p className="text-muted-foreground mb-6">
-            {statusFilter === "Pending Review"
+          {statusFilter === "Pending Review"
               ? "Sync new drafts from Notion to get started"
               : `No drafts with status "${statusFilter}"`}
-          </p>
-          {statusFilter === "Pending Review" && (
+            </p>
+            {statusFilter === "Pending Review" && (
             <Button
               onClick={() => syncDrafts.mutate()}
               disabled={syncDrafts.isPending}
-              className="editorial-button-primary"
             >
               {syncDrafts.isPending ? "Syncing..." : "Sync Drafts Now"}
             </Button>
-          )}
+            )}
         </div>
       ) : (
         <div>
@@ -159,7 +159,7 @@ export default function Dashboard() {
                     onClick={() => handleGenerateSuggestions(draft.id)}
                     disabled={generateSuggestions.isPending}
                     size="sm"
-                    className="editorial-button-secondary"
+                    variant="outline"
                   >
                     {generateSuggestions.isPending ? "Generating..." : "Generate Suggestions"}
                   </Button>

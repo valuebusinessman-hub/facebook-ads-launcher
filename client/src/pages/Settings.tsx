@@ -227,14 +227,13 @@ export default function Settings() {
           <Button
             onClick={handleSave}
             disabled={isSaving || updateCredentials.isPending}
-            className="editorial-button-primary"
           >
             {isSaving || updateCredentials.isPending ? "Saving..." : "Save Credentials"}
           </Button>
           <Button
             onClick={() => validateCredentials.mutate()}
             disabled={validateCredentials.isPending}
-            className="editorial-button-secondary"
+            variant="outline"
           >
             {validateCredentials.isPending ? "Validating..." : "Validate Connections"}
           </Button>

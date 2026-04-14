@@ -33,7 +33,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             Intelligent approval dashboard for managing ad creatives with AI-powered copy suggestions.
           </p>
           <a href={getLoginUrl()}>
-            <Button className="editorial-button-primary w-full">Sign In</Button>
+            <Button className="w-full">Sign In</Button>
           </a>
         </div>
       </div>
@@ -71,7 +71,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 logout();
                 setLocation("/");
               }}
-              className="text-xs uppercase tracking-wider"
             >
               Sign Out
             </Button>
